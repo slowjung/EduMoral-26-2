@@ -1,0 +1,537 @@
+html
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>선생님, 이 케이크 드실래요? | 교사 밸런스 게임</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts (Noto Sans KR) -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        chalkboard: '#2b4c3f',
+                        warmBg: '#fdfbf7',
+                        accentRed: '#e65b5b',
+                        accentBlue: '#4b88e0',
+                        chalkYellow: '#f3c642'
+                    },
+                    fontFamily: {
+                        sans: ['Noto Sans KR', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #f7f5f0;
+            background-image: radial-gradient(#e2ddd5 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        .card-shadow {
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.03);
+        }
+        .btn-bounce {
+            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .btn-bounce:hover {
+            transform: translateY(-3px) scale(1.02);
+        }
+        .btn-bounce:active {
+            transform: translateY(1px) scale(0.98);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="min-h-screen text-slate-800 flex flex-col items-center justify-between p-3 sm:p-6">
+
+    <!-- Top Navigation Header -->
+    <header class="w-full max-w-2xl flex justify-between items-center py-3 px-4 bg-white/80 backdrop-blur border border-amber-100 rounded-2xl mb-4 card-shadow">
+        <div class="flex items-center space-x-2">
+            <span class="text-2xl">🎂</span>
+            <span class="font-bold text-slate-800 tracking-tight">교사 밸런스 딜레마</span>
+        </div>
+        <div id="header-badge" class="hidden text-xs font-semibold px-2.5 py-1 bg-amber-100 text-amber-800 rounded-full">
+            진행 중
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="w-full max-w-2xl bg-white rounded-3xl border border-amber-100/80 card-shadow p-5 sm:p-8 flex-1 flex flex-col justify-center relative overflow-hidden">
+        
+        <!-- ==================== 1. INTRO SCREEN ==================== -->
+        <section id="screen-intro" class="text-center space-y-6 py-4">
+            <div class="inline-block px-3 py-1 bg-emerald-100 text-emerald-800 text-xs font-bold rounded-full mb-1">
+                학교 현장 실전 딜레마
+            </div>
+            
+            <div class="relative w-36 h-36 mx-auto flex items-center justify-center bg-amber-50 rounded-full border-4 border-dashed border-amber-200">
+                <span class="text-6xl animate-bounce">🎂</span>
+                <span class="absolute -top-1 -right-1 text-2xl">🏫</span>
+                <span class="absolute -bottom-1 -left-1 text-2xl">⚖️</span>
+            </div>
+
+            <div>
+                <h1 class="text-2xl sm:text-3xl font-black text-slate-800 leading-tight">
+                    선생님, 이 케이크<br><span class="text-amber-600">드실래요?</span>
+                </h1>
+                <p class="mt-3 text-sm sm:text-base text-slate-600 font-medium leading-relaxed max-w-md mx-auto">
+                    공직자로서의 법적 의무(<span class="text-red-500 font-bold">청탁금지법</span>) vs 
+                    교육 전문가로서의 <span class="text-blue-500 font-bold">제자 사랑</span>
+                </p>
+            </div>
+
+            <div class="bg-amber-50/80 border border-amber-200 rounded-2xl p-4 text-left text-xs sm:text-sm text-slate-700 space-y-2">
+                <div class="font-bold text-amber-900 flex items-center">
+                    <i class="fa-solid fa-circle-info mr-2 text-amber-600"></i>게임 규칙
+                </div>
+                <p>1. 반 학생들이 정성껏 만든 케이크를 가져온 상황이 주어집니다.</p>
+                <p>2. 당신의 첫 번째 직관적인 선택을 내려보세요.</p>
+                <p>3. 거센 '밸런스 파괴 변수(Challenge)' 속에서 당신의 소신을 시험해보세요!</p>
+            </div>
+
+            <button onclick="startGame()" class="w-full py-4 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-2xl text-lg shadow-lg btn-bounce flex items-center justify-center space-x-2">
+                <span>딜레마 도전하기</span>
+                <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </section>
+
+        <!-- ==================== 2. MAIN DILEMMA CHOICE SCREEN ==================== -->
+        <section id="screen-choice" class="hidden space-y-6">
+            <!-- Progress Bar -->
+            <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                <div class="bg-amber-500 h-full w-1/3 transition-all duration-300"></div>
+            </div>
+
+            <!-- Scenario Card -->
+            <div class="bg-slate-900 text-white p-6 rounded-2xl relative shadow-md">
+                <span class="absolute -top-3 left-4 bg-amber-400 text-slate-950 font-black text-xs px-3 py-1 rounded-full shadow">
+                    SITUATION
+                </span>
+                <p class="text-base sm:text-lg font-medium leading-relaxed mt-2">
+                    "반 학생 전체가 정성을 모아 직접 만든 케이크를 선생님께 드려보고 싶다며 교탁에 올렸습니다."
+                </p>
+                <div class="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
+                    <span><i class="fa-solid fa-chalkboard-user mr-1"></i> 당신은 담임 교사입니다.</span>
+                    <span>아이들의 눈빛: ✨ 기대 가득</span>
+                </div>
+            </div>
+
+            <h3 class="text-center font-bold text-slate-800 text-base sm:text-lg">
+                당신이라면 어떻게 하시겠습니까?
+            </h3>
+
+            <!-- Choice Buttons -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <button onclick="makeInitialChoice('EAT')" class="p-5 border-2 border-emerald-200 bg-emerald-50 hover:bg-emerald-100/80 rounded-2xl text-left btn-bounce transition-all flex flex-col justify-between space-y-3 group">
+                    <div class="flex justify-between items-center">
+                        <span class="text-3xl">🎂</span>
+                        <span class="text-xs font-bold px-2 py-1 bg-emerald-200 text-emerald-800 rounded-md">관계 우선</span>
+                    </div>
+                    <div>
+                        <div class="font-bold text-emerald-950 text-lg group-hover:text-emerald-700">먹는다</div>
+                        <p class="text-xs text-emerald-800 mt-1">아이들의 정성과 교육적 유대감을 소중히 여긴다.</p>
+                    </div>
+                </button>
+
+                <button onclick="makeInitialChoice('NO_EAT')" class="p-5 border-2 border-rose-200 bg-rose-50 hover:bg-rose-100/80 rounded-2xl text-left btn-bounce transition-all flex flex-col justify-between space-y-3 group">
+                    <div class="flex justify-between items-center">
+                        <span class="text-3xl">🙅‍♂️</span>
+                        <span class="text-xs font-bold px-2 py-1 bg-rose-200 text-rose-800 rounded-md">원칙 우선</span>
+                    </div>
+                    <div>
+                        <div class="font-bold text-rose-950 text-lg group-hover:text-rose-700">안 먹는다</div>
+                        <p class="text-xs text-rose-800 mt-1">공직자로서의 법적 의무와 청렴 원칙을 준수한다.</p>
+                    </div>
+                </button>
+            </div>
+        </section>
+
+        <!-- ==================== 3. DILEMMA BOOSTERS (CHALLENGE) ==================== -->
+        <section id="screen-booster" class="hidden space-y-6">
+            <!-- Progress Bar -->
+            <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                <div class="bg-amber-500 h-full w-2/3 transition-all duration-300"></div>
+            </div>
+
+            <div class="text-center space-y-1">
+                <div class="inline-flex items-center space-x-1 text-xs font-bold px-2.5 py-0.5 bg-amber-100 text-amber-800 rounded-full">
+                    <i class="fa-solid fa-bolt text-amber-500"></i>
+                    <span>밸런스 파괴 변수 발생!</span>
+                </div>
+                <h2 class="text-xl font-bold text-slate-800">
+                    선택을 다시 생각하게 만드는 상황들
+                </h2>
+                <p class="text-xs text-slate-500">
+                    당신이 <span id="user-initial-badge" class="font-bold px-1.5 py-0.5 rounded"></span> 지탄을 흔드는 현장의 현실입니다.
+                </p>
+            </div>
+
+            <!-- Booster Cards Container -->
+            <div id="booster-list" class="space-y-3 max-h-[320px] overflow-y-auto pr-1 custom-scrollbar">
+                <!-- Dynamically populated -->
+            </div>
+
+            <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
+                <p class="text-xs font-bold text-slate-700 text-center">
+                    이 모든 변수를 고려한 후, 당신의 <span class="text-amber-600 underline decoration-2">최종 선택</span>은?
+                </p>
+                <div class="grid grid-cols-2 gap-3">
+                    <button onclick="finalChoice('EAT')" id="btn-final-eat" class="py-3 px-4 font-bold rounded-xl text-sm border-2 border-emerald-500 text-emerald-700 bg-emerald-50 hover:bg-emerald-500 hover:text-white transition-all btn-bounce text-center">
+                        🎂 먹는다
+                    </button>
+                    <button onclick="finalChoice('NO_EAT')" id="btn-final-noeat" class="py-3 px-4 font-bold rounded-xl text-sm border-2 border-rose-500 text-rose-700 bg-rose-50 hover:bg-rose-500 hover:text-white transition-all btn-bounce text-center">
+                        🙅‍♂️ 안 먹는다
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== 4. RESULTS & EXPERT ANALYSIS ==================== -->
+        <section id="screen-result" class="hidden space-y-6">
+            <!-- Progress Bar -->
+            <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                <div class="bg-amber-500 h-full w-full transition-all duration-300"></div>
+            </div>
+
+            <div class="text-center space-y-2">
+                <span class="text-4xl">📊</span>
+                <h2 class="text-2xl font-black text-slate-800">선택 결과 & 전문가 해설</h2>
+                <p class="text-xs text-slate-500">전국 교사 및 예비 교사들의 응답 데이터 및 법적/교육적 가이드</p>
+            </div>
+
+            <!-- Voting Stats Bar -->
+            <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-2">
+                <div class="flex justify-between text-xs font-bold">
+                    <span class="text-emerald-700">🎂 먹는다 (<span id="stat-eat-percent">38</span>%)</span>
+                    <span class="text-rose-700">🙅‍♂️ 안 먹는다 (<span id="stat-noeat-percent">62</span>%)</span>
+                </div>
+                <div class="w-full bg-slate-200 h-4 rounded-full overflow-hidden flex">
+                    <div id="bar-eat" class="bg-emerald-500 h-full transition-all duration-700" style="width: 38%"></div>
+                    <div id="bar-noeat" class="bg-rose-500 h-full transition-all duration-700" style="width: 62%"></div>
+                </div>
+                <p id="user-alignment-msg" class="text-center text-xs text-slate-600 font-medium pt-1">
+                    <!-- Dynamic alignment message -->
+                </p>
+            </div>
+
+            <!-- Tabs for Expert Analysis -->
+            <div class="space-y-3">
+                <div class="flex border-b border-slate-200">
+                    <button onclick="switchTab('legal')" id="tab-btn-legal" class="flex-1 py-2 font-bold text-xs sm:text-sm border-b-2 border-amber-500 text-amber-600 text-center">
+                        ⚖️ 법적 관점 (김영란법)
+                    </button>
+                    <button onclick="switchTab('edu')" id="tab-btn-edu" class="flex-1 py-2 font-bold text-xs sm:text-sm border-b-2 border-transparent text-slate-400 hover:text-slate-600 text-center">
+                        🏫 교육적 관점 (학생 지도)
+                    </button>
+                </div>
+
+                <!-- Tab Content: Legal -->
+                <div id="tab-content-legal" class="bg-amber-50/50 p-4 rounded-2xl border border-amber-100 text-xs sm:text-sm text-slate-700 space-y-2 leading-relaxed">
+                    <h4 class="font-bold text-amber-900 flex items-center">
+                        <i class="fa-solid fa-gavel mr-1.5 text-amber-600"></i>청탁금지법 및 공무원 복무규정
+                    </h4>
+                    <p>• <strong>원칙적 적용:</strong> 학생이 직접 만든 케이크라도 재료비 및 노력이 투입된 '금품'으로 간주될 수 있습니다. 특히 교사와 직접적 직무연관성(성적, 평가)이 있는 담임/교과 교사는 원칙적으로 금품 수수가 금지됩니다.</p>
+                    <p>• <strong>현실적 유연성:</strong> 단, 학생 '전체'가 참여하여 현장에서 다 함께 나눠 먹는 형태는 개인적 사익 취득으로 보기 어려워 위법성이 조각되거나 행정 지도로 마무리되는 경우가 많습니다.</p>
+                </div>
+
+                <!-- Tab Content: Educational -->
+                <div id="tab-content-edu" class="hidden bg-blue-50/50 p-4 rounded-2xl border border-blue-100 text-xs sm:text-sm text-slate-700 space-y-2 leading-relaxed">
+                    <h4 class="font-bold text-blue-900 flex items-center">
+                        <i class="fa-solid fa-heart mr-1.5 text-blue-600"></i>학생 유대감 및 규칙 지도
+                    </h4>
+                    <p>• <strong>관계적 측면:</strong> 단칼에 거절하는 것은 아이들에게 거절감과 상처를 줄 수 있습니다. "선생님을 생각한 마음만으로도 세상에서 가장 달콤한 선물이다"라는 감성적 지지가 선행되어야 합니다.</p>
+                    <p>• <strong>교육적 솔루션:</strong> "선생님은 규칙을 지키는 모습을 보여주는 사람이란다"라며 법의 취지를 설명한 후, **케이크는 교실에서 학급 전체 학생들과 나누어 먹는 지도 방식**이 최선의 타협안으로 추천됩니다.</p>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="pt-2 space-y-2">
+                <button onclick="openMakerModal()" class="w-full py-3 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl text-sm btn-bounce flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                    <span>나만의 교사 딜레마 문제 만들기</span>
+                </button>
+                
+                <button onclick="resetGame()" class="w-full py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-sm btn-bounce">
+                    🔄 다시 도전하기
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Modal: Custom Scenario Generator -->
+    <div id="modal-maker" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white w-full max-w-md rounded-3xl p-6 space-y-4 card-shadow relative">
+            <button onclick="closeMakerModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+            
+            <div class="flex items-center space-x-2 text-amber-600 font-bold">
+                <i class="fa-solid fa-lightbulb text-xl"></i>
+                <h3 class="text-lg text-slate-800">새로운 딜레마 출제하기</h3>
+            </div>
+            
+            <p class="text-xs text-slate-500">학교 현장에서 경험했거나 고민되는 딜레마 상황을 직접 작성해보세요.</p>
+
+            <form onsubmit="handleCustomSubmit(event)" class="space-y-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">딜레마 제목</label>
+                    <input type="text" id="custom-title" required placeholder="예: 스승의 날 카네이션 한 송이" class="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:border-amber-500">
+                </div>
+                
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">상황 설명</label>
+                    <textarea id="custom-desc" required rows="3" placeholder="상황을 구체적으로 적어주세요..." class="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:border-amber-500"></textarea>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-xs font-bold text-emerald-700 mb-1">선택 A (허용/관계)</label>
+                        <input type="text" id="custom-a" required placeholder="예: 받아준다" class="w-full px-3 py-2 text-xs border border-emerald-200 rounded-xl focus:outline-none focus:border-emerald-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-rose-700 mb-1">선택 B (거절/원칙)</label>
+                        <input type="text" id="custom-b" required placeholder="예: 거절한다" class="w-full px-3 py-2 text-xs border border-rose-200 rounded-xl focus:outline-none focus:border-rose-500">
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl text-xs mt-2">
+                    등록하고 공유하기
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-5 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-xs font-bold px-4 py-2.5 rounded-full shadow-lg opacity-0 transition-opacity duration-300 pointer-events-none z-50 flex items-center space-x-2">
+        <i class="fa-solid fa-circle-check text-emerald-400"></i>
+        <span id="toast-msg">메시지</span>
+    </div>
+
+    <!-- Footer -->
+    <footer class="mt-6 text-center text-xs text-slate-400">
+        <p>© 2026 선생님, 이 케이크 드실래요? • 공직자 윤리 & 교육 현장 밸런스 게임</p>
+    </footer>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // State management
+        let initialChoice = null; // 'EAT' or 'NO_EAT'
+        let finalSelection = null;
+        
+        // Simulated voting database
+        let stats = {
+            eat: 38,
+            noeat: 62
+        };
+
+        // User provided boosters content
+        const boostersData = {
+            NO_EAT: [
+                {
+                    icon: '😈',
+                    title: '옆반 선생님의 상황',
+                    desc: '옆반 선생님은 똑같이 만든 케이크를 맛있게 먹었다는 소문이 퍼졌습니다. 안 먹는다면 우리 반 아이들의 실망감이 몇 배로 커질 수 있습니다.'
+                },
+                {
+                    icon: '🥖',
+                    title: '방과후 교실 제작',
+                    desc: '사실 방과후 수업 재료로 만든 것이라 추가 비용이 거의 안 들었습니다. 어차피 안 먹으면 버려지게 됩니다.'
+                },
+                {
+                    icon: '💌',
+                    title: '선생님 전용 커스텀 디자인',
+                    desc: '케이크 위에 오직 선생님의 얼굴과 이름이 새겨져 있어 학생들의 깊은 애정이 담겨있습니다.'
+                }
+            ],
+            EAT: [
+                {
+                    icon: '👀',
+                    title: '타반 학생 및 학부모의 시선',
+                    desc: '복도를 지나가던 다른 반 학생들이 보고 "OO 선생님 김영란법 위반 아니야?" 하고 소문을 내거나 신고할 위험이 있습니다.'
+                },
+                {
+                    icon: '🎁',
+                    title: '다음번 선물의 유혹',
+                    desc: '이번 한번 먹어주면 다음 스승의 날이나 간식 때 더 비싼 선물을 계속 가져올 수 있습니다.'
+                },
+                {
+                    icon: '📜',
+                    title: '학교 청렴 공문 강행',
+                    desc: '어제 자로 "스승의 날 찬조금 및 간식 수수 절대 금지" 공문이 학교 게시판에 대대적으로 게재되었습니다.'
+                }
+            ]
+        };
+
+        // DOM elements
+        const screenIntro = document.getElementById('screen-intro');
+        const screenChoice = document.getElementById('screen-choice');
+        const screenBooster = document.getElementById('screen-booster');
+        const screenResult = document.getElementById('screen-result');
+        const headerBadge = document.getElementById('header-badge');
+
+        function startGame() {
+            screenIntro.classList.add('hidden');
+            screenChoice.classList.remove('hidden');
+            headerBadge.classList.remove('hidden');
+        }
+
+        function makeInitialChoice(choice) {
+            initialChoice = choice;
+            screenChoice.classList.add('hidden');
+            screenBooster.classList.remove('hidden');
+
+            const badge = document.getElementById('user-initial-badge');
+            if (choice === 'EAT') {
+                badge.innerText = "🎂 [먹는다]";
+                badge.className = "font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800";
+            } else {
+                badge.innerText = "🙅‍♂️ [안 먹는다]";
+                badge.className = "font-bold px-2 py-0.5 rounded bg-rose-100 text-rose-800";
+            }
+
+            renderBoosters(choice);
+        }
+
+        function renderBoosters(choice) {
+            const listContainer = document.getElementById('booster-list');
+            listContainer.innerHTML = '';
+
+            const list = boostersData[choice];
+            list.forEach((item, index) => {
+                const card = document.createElement('div');
+                card.className = "bg-white p-3.5 rounded-2xl border border-slate-200 card-shadow flex items-start space-x-3";
+                card.innerHTML = `
+                    <span class="text-2xl p-2 bg-slate-50 rounded-xl">${item.icon}</span>
+                    <div class="flex-1 text-left">
+                        <div class="font-bold text-xs sm:text-sm text-slate-800">${item.title}</div>
+                        <p class="text-xs text-slate-600 mt-0.5 leading-relaxed">${item.desc}</p>
+                    </div>
+                `;
+                listContainer.appendChild(card);
+            });
+        }
+
+        function finalChoice(selection) {
+            finalSelection = selection;
+        
+            // Increment stats dynamically
+            if (selection === 'EAT') {
+                stats.eat += 1;
+                // '먹는다' 선택 시 구글 설문지 링크로 이동 (0.5초 뒤 이동하여 투표수 반영 체감)
+                setTimeout(() => {
+                    window.location.href = "https://docs.google.com/forms/d/e/1FAIpQLSeUfGUe4oUuVmDO2zRl8aozeLxVp1zTCKowTKyIEZXXHyLgIw/viewform?usp=pp_url&entry.1233614722=1.+%EB%A8%B9%EB%8A%94%EB%8B%A4";
+                }, 300);
+                return;
+            } else {
+                stats.noeat += 1;
+                // '안 먹는다' 선택 시 구글 설문지 링크로 이동
+                setTimeout(() => {
+                    window.location.href = "https://docs.google.com/forms/d/e/1FAIpQLSeUfGUe4oUuVmDO2zRl8aozeLxVp1zTCKowTKyIEZXXHyLgIw/viewform?usp=pp_url&entry.1233614722=2.+%EC%95%88+%EB%A8%B9%EB%8A%94%EB%8B%A4";
+                }, 300);
+                return;
+            }
+        
+            screenBooster.classList.add('hidden');
+            screenResult.classList.remove('hidden');
+        
+            renderResults();
+        }
+
+        function renderResults() {
+            const total = stats.eat + stats.noeat;
+            const eatPct = Math.round((stats.eat / total) * 100);
+            const noeatPct = 100 - eatPct;
+
+            document.getElementById('stat-eat-percent').innerText = eatPct;
+            document.getElementById('stat-noeat-percent').innerText = noeatPct;
+
+            document.getElementById('bar-eat').style.width = eatPct + '%';
+            document.getElementById('bar-noeat').style.width = noeatPct + '%';
+
+            const msgEl = document.getElementById('user-alignment-msg');
+            if (finalSelection === 'EAT') {
+                msgEl.innerHTML = `당신은 <span class="text-emerald-600 font-bold">${eatPct}%</span>의 선생님들과 같은 <strong>[관계 중심 교육관]</strong>을 선택하셨습니다!`;
+            } else {
+                msgEl.innerHTML = `당신은 <span class="text-rose-600 font-bold">${noeatPct}%</span>의 선생님들과 같은 <strong>[원칙 중심 청렴관]</strong>을 선택하셨습니다!`;
+            }
+        }
+
+        function switchTab(tab) {
+            const legalBtn = document.getElementById('tab-btn-legal');
+            const eduBtn = document.getElementById('tab-btn-edu');
+            const legalContent = document.getElementById('tab-content-legal');
+            const eduContent = document.getElementById('tab-content-edu');
+
+            if (tab === 'legal') {
+                legalBtn.className = "flex-1 py-2 font-bold text-xs sm:text-sm border-b-2 border-amber-500 text-amber-600 text-center";
+                eduBtn.className = "flex-1 py-2 font-bold text-xs sm:text-sm border-b-2 border-transparent text-slate-400 hover:text-slate-600 text-center";
+                legalContent.classList.remove('hidden');
+                eduContent.classList.add('hidden');
+            } else {
+                eduBtn.className = "flex-1 py-2 font-bold text-xs sm:text-sm border-b-2 border-amber-500 text-amber-600 text-center";
+                legalBtn.className = "flex-1 py-2 font-bold text-xs sm:text-sm border-b-2 border-transparent text-slate-400 hover:text-slate-600 text-center";
+                eduContent.classList.remove('hidden');
+                legalContent.classList.add('hidden');
+            }
+        }
+
+        function resetGame() {
+            initialChoice = null;
+            finalSelection = null;
+            screenResult.classList.add('hidden');
+            screenIntro.classList.remove('hidden');
+            headerBadge.classList.add('hidden');
+        }
+
+        function openMakerModal() {
+            document.getElementById('modal-maker').classList.remove('hidden');
+        }
+
+        function closeMakerModal() {
+            document.getElementById('modal-maker').classList.add('hidden');
+        }
+
+        function handleCustomSubmit(e) {
+            e.preventDefault();
+            closeMakerModal();
+            showToast("새로운 딜레마가 성공적으로 등록되었습니다!");
+            
+            // Clear inputs
+            document.getElementById('custom-title').value = '';
+            document.getElementById('custom-desc').value = '';
+            document.getElementById('custom-a').value = '';
+            document.getElementById('custom-b').value = '';
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-msg');
+            toastMsg.innerText = message;
+            toast.classList.remove('opacity-0');
+            setTimeout(() => {
+                toast.classList.add('opacity-0');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
